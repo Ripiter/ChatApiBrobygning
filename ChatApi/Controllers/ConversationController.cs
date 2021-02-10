@@ -21,26 +21,38 @@ namespace ChatApi.Controllers
 
         // GET api/<ConversationController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult> Get(int id, [FromBody] string values)
         {
             // convert id to object cuz id will be a jsonstring
-            string personID = "abc";
-            string message = "Hello world";
+            try
+            {
+                string k = "amount of conversations " + ConversationManager.getInstance().conversations.Count;
 
-            Conversation c = new Conversation();
-            c.PersonID = personID;
-            c.messages.Add(new Message(message));
+                return Ok(k);
 
-            ConversationManager.getInstance().conversations.Add(c);
+            }catch(Exception e)
+            {
+                return StatusCode(500, e);
+            }
 
-
-            return "amount of conversations " + ConversationManager.getInstance().conversations.Count;
         }
 
         // POST api/<ConversationController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult> Post([FromBody] string value)
         {
+            try
+            {
+                ConversationManager.getInstance().AddConversation(value);
+                
+                // maybe delete later
+                return Ok("a");
+                
+            }catch(Exception e)
+            {
+                return StatusCode(500, e);
+            }
+
         }
 
         // PUT api/<ConversationController>/5
