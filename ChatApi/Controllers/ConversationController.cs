@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -49,15 +50,19 @@ namespace ChatApi.Controllers
 
                 if (ConversationManager.getInstance().IsAdmin(uuid, value))
                 {
-
+                    JObject json = JObject.Parse(value);
+                    string message = (string)json["message"];
+                    string messageTo = (string)json["messageTo"];
+                    if(messageTo != null)
+                        ConversationManager.getInstance().AddMessage(uuid, messageTo, message);
                 }
                 else
                 {
                     ConversationManager.getInstance().AddConversation(value, uuid, name);
                 }
                 
-                // maybe delete later
                 return Ok("someone will get to you soon");
+                // maybe delete later
                 
             }catch(Exception e)
             {

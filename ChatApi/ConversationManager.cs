@@ -58,8 +58,17 @@ namespace ChatApi
             }
             else
             {
-                GetConversation(personID).messages.Add(new Message(personID, message));
+                AddMessage(personID, message);
             }
+        }
+
+        public void AddMessage(string personID, string message)
+        {
+            GetConversation(personID).messages.Add(new Message(personID, message));
+        }
+        public void AddMessage(string personID, string toPersonID, string message)
+        {
+            GetConversation(toPersonID).messages.Add(new Message(personID, message));
         }
 
         private bool ContainsPerson(string _personId)
@@ -117,22 +126,17 @@ namespace ChatApi
 
         public bool IsAdmin(string uuid, string _value = "")
         {
-            if(_value != "")
-            {
-                if(IsAdmin(uuid) == false)
-                {
-                    JObject json = JObject.Parse(_value);
-                    string message = (string)json["message"];
-                    if (message.Contains("/admin password"))
-                    {
-                        AdminUUID.Add(uuid);
-                    }
-                }
-            }
-
-
             if (AdminUUID.Contains(uuid))
                 return true;
+            
+            JObject json = JObject.Parse(_value);
+            string message = (string)json["message"];
+            
+            if (message.Contains("/admin password"))
+            {
+                AdminUUID.Add(uuid);
+                return true;
+            }
 
             return false;
         }
