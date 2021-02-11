@@ -7,11 +7,22 @@ namespace ChatApi
 {
     public class Message
     {
-        public Message(string _text)
+        public Message(string personID, string _text)
         {
+            PersonID = personID;
             messageText = _text;
             messageSendTime = DateTime.Now;
         }
+
+        private string personID;
+
+        public string PersonID
+        {
+            get { return personID; }
+            set { personID = value; }
+        }
+
+
         private string messageText;
 
         public string MessageText

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +9,23 @@ namespace ChatApi
     public class ConversationManager
     {
         private static ConversationManager instance = null;
-        public List<Conversation> conversations = new List<Conversation>();
+
+        private List<Conversation> conversations = new List<Conversation>();
+
+        public List<Conversation> Conversations
+        {
+            get { return conversations; }
+            set { conversations = value; }
+        }
+
+        public List<string> adminUUID = new List<string>();
+
+        public List<string> AdminUUID
+        {
+            get { return adminUUID; }
+            set { adminUUID = value; }
+        }
+
 
         private ConversationManager()
         {
@@ -24,23 +41,24 @@ namespace ChatApi
         }
 
 
-        public void AddConversation(string _value)
+        public void AddConversation(string _body, params string[] headers)
         {
-            if(!ContainsPerson("Steve"))
+            JObject json = JObject.Parse(_body);
+            string personID = headers[0];
+            string message = (string)json["Username"];
+
+            if (!ContainsPerson(personID))
             {
                 // _value is json object, person and message are from converting it
-                string personID = "Steve";
-                string message = "Hello world";
-
                 Conversation c = new Conversation();
                 c.PersonID = personID;
-                c.messages.Add(new Message(message));
+                c.messages.Add(new Message(personID, message));
 
                 conversations.Add(c);
             }
             else
             {
-                GetConversation("Steve").messages.Add(new Message("Hello world"));
+                GetConversation(personID).messages.Add(new Message(personID, message));
             }
         }
 
@@ -66,5 +84,58 @@ namespace ChatApi
 
             return null;
         }
+
+        public string GetMessagesAsString(string personID, bool oldMessages = false)
+        {
+            if (IsLastMessage(personID) && oldMessages == false)
+                return "";
+
+            return JsonConverter.Serialize(GetMessages(personID));
+        }
+        public List<Message> GetMessages(string personID)
+        {
+            return GetConversation(personID).messages;
+        }
+
+        /// <summary>
+        /// Check if the owner of the last message is the same
+        /// </summary>
+        /// <param name="personID"></param>
+        /// <returns></returns>
+        private bool IsLastMessage(string personID)
+        {
+            List<Message> messages = GetMessages(personID);
+
+            if(messages.Count > 0)
+            {
+                if (messages[messages.Count - 1].PersonID == personID)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool IsAdmin(string uuid, string _value = "")
+        {
+            if(_value != "")
+            {
+                if(IsAdmin(uuid) == false)
+                {
+                    JObject json = JObject.Parse(_value);
+                    string message = (string)json["message"];
+                    if (message.Contains("/admin password"))
+                    {
+                        AdminUUID.Add(uuid);
+                    }
+                }
+            }
+
+
+            if (AdminUUID.Contains(uuid))
+                return true;
+
+            return false;
+        }
+
     }
 }

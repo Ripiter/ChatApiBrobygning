@@ -26,7 +26,8 @@ namespace ChatApi.Controllers
             // convert id to object cuz id will be a jsonstring
             try
             {
-                string k = "amount of conversations " + ConversationManager.getInstance().conversations.Count;
+                string uuid = Request.Headers["zbc_auth_uuid"];
+                string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
 
                 return Ok(k);
 
@@ -43,10 +44,20 @@ namespace ChatApi.Controllers
         {
             try
             {
-                ConversationManager.getInstance().AddConversation(value);
+                string uuid = Request.Headers["zbc_auth_uuid"];
+                string name = Request.Headers["zbc_user_name"];
+
+                if (ConversationManager.getInstance().IsAdmin(uuid, value))
+                {
+
+                }
+                else
+                {
+                    ConversationManager.getInstance().AddConversation(value, uuid, name);
+                }
                 
                 // maybe delete later
-                return Ok("a");
+                return Ok("someone will get to you soon");
                 
             }catch(Exception e)
             {
