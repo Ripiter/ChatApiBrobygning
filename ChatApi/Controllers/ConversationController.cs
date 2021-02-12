@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -13,24 +14,18 @@ namespace ChatApi.Controllers
     [ApiController]
     public class ConversationController : ControllerBase
     {
-        // GET: api/<ConversationController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<ConversationController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id, [FromBody] string values)
+        
+        // GET api/<ConversationController>
+        //[HttpGet("{id}")]
+        public async Task<ActionResult> Get()
         {
             // convert id to object cuz id will be a jsonstring
             try
             {
                 string uuid = Request.Headers["zbc_auth_uuid"];
-                string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
+                //string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
 
-                return Ok(k);
+                return Ok("You used get");
 
             }catch(Exception e)
             {
