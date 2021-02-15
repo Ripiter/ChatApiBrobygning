@@ -7,19 +7,19 @@ namespace ChatApi
 {
     public class Message
     {
-        public Message(string personID, string _text)
+        public Message(Person person, string _text)
         {
-            PersonID = personID;
+            User = person;
             messageText = _text;
-            messageSendTime = DateTime.Now;
+            messageSendTime = DateTime.Now.ToShortDateString();
         }
 
-        private string personID;
+        private Person user;
 
-        public string PersonID
+        public Person User
         {
-            get { return personID; }
-            set { personID = value; }
+            get { return user; }
+            set { user = value; }
         }
 
 
@@ -30,9 +30,9 @@ namespace ChatApi
             get { return messageText; }
             set { messageText = value; }
         }
-        private DateTime messageSendTime;
+        private string messageSendTime;
 
-        public DateTime MessageSendTime
+        public string MessageSendTime
         {
             get { return messageSendTime; }
             set { messageSendTime = value; }

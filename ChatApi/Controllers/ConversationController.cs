@@ -16,16 +16,16 @@ namespace ChatApi.Controllers
     {
         
         // GET api/<ConversationController>
-        //[HttpGet("{id}")]
+        [HttpGet]
         public async Task<ActionResult> Get()
         {
             // convert id to object cuz id will be a jsonstring
             try
             {
                 string uuid = Request.Headers["zbc_auth_uuid"];
-                //string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
+                string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
 
-                return Ok("You used get");
+                return Ok(k);
 
             }catch(Exception e)
             {
@@ -33,30 +33,45 @@ namespace ChatApi.Controllers
             }
 
         }
-
-        // POST api/<ConversationController>
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] string value)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetStudents(int id)
         {
             try
             {
-                string uuid = Request.Headers["zbc_auth_uuid"];
-                string name = Request.Headers["zbc_user_name"];
+                List<Person> p = ConversationManager.getInstance().GetPeopleWaiting();
 
-                if (ConversationManager.getInstance().IsAdmin(uuid, value))
+                return Ok(p);
+            }
+            catch (Exception e )
+            {
+
+                return StatusCode(500, e);
+            }
+        }
+
+        // POST api/<ConversationController>
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] JObject json)
+        {
+            try
+            {
+                Person person = new Person(Request.Headers["zbc_auth_uuid"], Request.Headers["zbc_user_name"]);
+
+                if (ConversationManager.getInstance().IsAdmin(person.PersonID, (string)json["message"]))
                 {
-                    JObject json = JObject.Parse(value);
                     string message = (string)json["message"];
                     string messageTo = (string)json["messageTo"];
-                    if(messageTo != null)
-                        ConversationManager.getInstance().AddMessage(uuid, messageTo, message);
+
+                    if(messageTo != null || messageTo != "")
+                        ConversationManager.getInstance().AddMessage(person, messageTo, message);
+
                 }
                 else
                 {
-                    ConversationManager.getInstance().AddConversation(value, uuid, name);
+                    ConversationManager.getInstance().AddConversation(json, person);
                 }
                 
-                return Ok("someone will get to you soon");
+                return Ok("{ 'Success' : true }"); ;
                 // maybe delete later
                 
             }catch(Exception e)

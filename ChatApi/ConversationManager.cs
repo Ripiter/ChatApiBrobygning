@@ -41,41 +41,41 @@ namespace ChatApi
         }
 
 
-        public void AddConversation(string _body, params string[] headers)
+        public void AddConversation(JObject _body, Person _person, params string[] headers)
         {
-            JObject json = JObject.Parse(_body);
-            string personID = headers[0];
+            JObject json = _body;
+
             string message = (string)json["Username"];
 
-            if (!ContainsPerson(personID))
+            if (!ContainsPerson(_person.PersonID))
             {
                 // _value is json object, person and message are from converting it
                 Conversation c = new Conversation();
-                c.PersonID = personID;
-                c.messages.Add(new Message(personID, message));
+                c.User = _person;
+                c.messages.Add(new Message(_person, message));
 
                 conversations.Add(c);
             }
             else
             {
-                AddMessage(personID, message);
+                AddMessage(_person, message);
             }
         }
 
-        public void AddMessage(string personID, string message)
+        public void AddMessage(Person person, string message)
         {
-            GetConversation(personID).messages.Add(new Message(personID, message));
+            GetConversation(person.PersonID).messages.Add(new Message(person, message));
         }
-        public void AddMessage(string personID, string toPersonID, string message)
+        public void AddMessage(Person person, string toPersonID, string message)
         {
-            GetConversation(toPersonID).messages.Add(new Message(personID, message));
+            GetConversation(toPersonID).messages.Add(new Message(person, message));
         }
 
         private bool ContainsPerson(string _personId)
         {
             for (int i = 0; i < conversations.Count; i++)
             {
-                if (conversations[i].PersonID == _personId)
+                if (conversations[i].User.PersonID == _personId)
                     return true;
             }
 
@@ -87,7 +87,7 @@ namespace ChatApi
         {
             for (int i = 0; i < conversations.Count; i++)
             {
-                if (conversations[i].PersonID == _personId)
+                if (conversations[i].User.PersonID == _personId)
                     return conversations[i];
             }
 
@@ -96,13 +96,20 @@ namespace ChatApi
 
         public string GetMessagesAsString(string personID, bool oldMessages = false)
         {
+            if (personID == "")
+                return "Error cant find your id";
+
             if (IsLastMessage(personID) && oldMessages == false)
                 return "";
+
 
             return JsonConverter.Serialize(GetMessages(personID));
         }
         public List<Message> GetMessages(string personID)
         {
+            if (personID == "")
+                return null;
+
             return GetConversation(personID).messages;
         }
 
@@ -117,20 +124,17 @@ namespace ChatApi
 
             if(messages.Count > 0)
             {
-                if (messages[messages.Count - 1].PersonID == personID)
+                if (messages[messages.Count - 1].User.PersonID == personID)
                     return true;
             }
 
             return false;
         }
 
-        public bool IsAdmin(string uuid, string _value = "")
+        public bool IsAdmin(string uuid, string message = "")
         {
             if (AdminUUID.Contains(uuid))
                 return true;
-            
-            JObject json = JObject.Parse(_value);
-            string message = (string)json["message"];
             
             if (message.Contains("/admin password"))
             {
@@ -139,6 +143,19 @@ namespace ChatApi
             }
 
             return false;
+        }
+
+        public List<Person> GetPeopleWaiting()
+        {
+            List<Person> people = new List<Person>();
+
+            for (int i = 0; i < conversations.Count; i++)
+            {
+                if (conversations[i].Admin == null)
+                    people.Add(conversations[i].User);
+            }
+
+            return people;
         }
 
     }

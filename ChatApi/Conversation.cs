@@ -9,20 +9,20 @@ namespace ChatApi
     {
         public List<Message> messages = new List<Message>();
 
-        private string adminID;
+        private Person admin;
 
-        public string AdminID
+        public Person Admin
         {
-            get { return adminID; }
-            set { adminID = value; }
+            get { return admin; }
+            set { admin = value; }
         }
 
-        private string personID;
+        private Person person;
 
-        public string PersonID
+        public Person User
         {
-            get { return personID; }
-            set { personID = value; }
+            get { return person; }
+            set { person = value; }
         }
 
     }
