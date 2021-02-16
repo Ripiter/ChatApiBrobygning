@@ -92,6 +92,10 @@ namespace ChatApi
             {
                 if (conversations[i].User.PersonID == _personId)
                     return conversations[i];
+
+                if (conversations[i].Admin != null)
+                    if (conversations[i].Admin.PersonID == _personId)
+                        return conversations[i];
             }
 
             return null;
