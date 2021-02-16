@@ -23,7 +23,8 @@ namespace ChatApi.Controllers
             try
             {
                 string uuid = Request.Headers["zbc_auth_uuid"];
-                string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
+                //string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
+                List<Message> k = ConversationManager.getInstance().GetLatestMessages(uuid);
 
                 return Ok(k);
 
@@ -55,15 +56,24 @@ namespace ChatApi.Controllers
         {
             try
             {
-                Person person = new Person(Request.Headers["zbc_auth_uuid"], Request.Headers["zbc_user_name"]);
+                string id = Request.Headers["zbc_auth_uuid"];
+                string name = Request.Headers["zbc_user_name"];
+
+                Person person = ConversationManager.getInstance().GetPersonByID(id);
+                
+                if(person == null)
+                    person = new Person(id, name);
 
                 if (ConversationManager.getInstance().IsAdmin(person.PersonID, (string)json["message"]))
                 {
                     string message = (string)json["message"];
                     string messageTo = (string)json["messageTo"];
 
-                    if(messageTo != null || messageTo != "")
-                        ConversationManager.getInstance().AddMessage(person, messageTo, message);
+                    if(messageTo != null)
+                    {
+                        if(messageTo != "")
+                            ConversationManager.getInstance().AddMessage(person, messageTo, message);
+                    }
 
                 }
                 else
@@ -71,7 +81,7 @@ namespace ChatApi.Controllers
                     ConversationManager.getInstance().AddConversation(json, person);
                 }
                 
-                return Ok("{ 'Success' : true }"); ;
+                return Ok("{ \"Success\" : true }"); ;
                 // maybe delete later
                 
             }catch(Exception e)

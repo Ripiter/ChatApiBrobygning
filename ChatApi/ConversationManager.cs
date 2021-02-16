@@ -69,6 +69,9 @@ namespace ChatApi
         public void AddMessage(Person person, string toPersonID, string message)
         {
             GetConversation(toPersonID).messages.Add(new Message(person, message));
+
+            if (IsAdmin(person.PersonID))
+                GetConversation(toPersonID).Admin = person;
         }
 
         private bool ContainsPerson(string _personId)
@@ -99,10 +102,6 @@ namespace ChatApi
             if (personID == "")
                 return "Error cant find your id";
 
-            if (IsLastMessage(personID) && oldMessages == false)
-                return "";
-
-
             return JsonConverter.Serialize(GetMessages(personID));
         }
         public List<Message> GetMessages(string personID)
@@ -113,23 +112,23 @@ namespace ChatApi
             return GetConversation(personID).messages;
         }
 
-        /// <summary>
-        /// Check if the owner of the last message is the same
-        /// </summary>
-        /// <param name="personID"></param>
-        /// <returns></returns>
-        private bool IsLastMessage(string personID)
+        public List<Message> GetLatestMessages(string personID)
         {
-            List<Message> messages = GetMessages(personID);
+            Conversation c = GetConversation(personID);
 
-            if(messages.Count > 0)
+            List<Message> messages = new List<Message>();
+
+            for (int i = c.GetShortFromID(personID); i < c.messages.Count; i++)
             {
-                if (messages[messages.Count - 1].User.PersonID == personID)
-                    return true;
+                if(c.messages[i].User.PersonID != personID)
+                    messages.Add(c.messages[i]);
             }
 
-            return false;
+            c.SetShortFromID(personID, (short)c.messages.Count);
+
+            return messages;
         }
+
 
         public bool IsAdmin(string uuid, string message = "")
         {
@@ -156,6 +155,28 @@ namespace ChatApi
             }
 
             return people;
+        }
+
+        public Person GetPersonByID(string personID)
+        {
+            for (int i = 0; i < conversations.Count; i++)
+            {
+                if (conversations[i].User.PersonID == personID)
+                    return conversations[i].User;
+
+                if(conversations[i].Admin != null)
+                    if (conversations[i].Admin.PersonID == personID)
+                        return conversations[i].Admin;
+            }
+
+            return null;
+        }
+
+        public void DeleteConversation(string personID)
+        {
+            Conversation c = GetConversation(personID);
+
+            conversations.Remove(c);
         }
 
     }
