@@ -11,7 +11,7 @@ namespace ChatApi
         {
             User = person;
             messageText = _text;
-            messageSendTime = DateTime.Now.ToShortDateString();
+            messageSendTime = DateTime.Now.ToString();
         }
 
         private Person user;

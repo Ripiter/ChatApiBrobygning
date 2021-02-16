@@ -34,6 +34,7 @@ namespace ChatApi.Controllers
             }
 
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetStudents(int id)
         {
