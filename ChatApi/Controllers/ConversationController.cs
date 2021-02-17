@@ -70,7 +70,10 @@ namespace ChatApi.Controllers
                     string message = (string)json["message"];
                     string messageTo = (string)json["messageTo"];
 
-                    if(messageTo != null)
+                    if (message.Contains(ConversationManager.ADMIN_MESSAGE_CHECK))
+                        message = person.PersonName + " forbundet til chatten";
+
+                    if (messageTo != null)
                     {
                         if(messageTo != "")
                             ConversationManager.getInstance().AddMessage(person, messageTo, message);

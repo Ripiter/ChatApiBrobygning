@@ -18,7 +18,7 @@ namespace ChatApi
             set { conversations = value; }
         }
 
-        public List<string> adminUUID = new List<string>();
+        private List<string> adminUUID = new List<string>();
 
         public List<string> AdminUUID
         {
@@ -26,6 +26,7 @@ namespace ChatApi
             set { adminUUID = value; }
         }
 
+        public const string ADMIN_MESSAGE_CHECK = "/admin password"; 
 
         private ConversationManager()
         {
@@ -139,7 +140,7 @@ namespace ChatApi
             if (AdminUUID.Contains(uuid))
                 return true;
             
-            if (message.Contains("/admin password"))
+            if (message.Contains(ADMIN_MESSAGE_CHECK))
             {
                 AdminUUID.Add(uuid);
                 return true;
