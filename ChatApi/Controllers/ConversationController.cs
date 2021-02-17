@@ -23,10 +23,17 @@ namespace ChatApi.Controllers
             try
             {
                 string uuid = Request.Headers["zbc_auth_uuid"];
-                //string k = ConversationManager.getInstance().GetMessagesAsString(uuid);
-                List<Message> k = ConversationManager.getInstance().GetLatestMessages(uuid);
 
-                return Ok(k);
+                if(ConversationManager.getInstance().GetPersonByID(uuid) != null)
+                {
+                    List<Message> k = ConversationManager.getInstance().GetLatestMessages(uuid);
+
+                    return Ok(k);
+                }
+                else
+                {
+                    return Ok("{ 'Success' : true, 'Message': 'Person id not found' }");
+                }
 
             }catch(Exception e)
             {
@@ -85,7 +92,7 @@ namespace ChatApi.Controllers
                     ConversationManager.getInstance().AddConversation(json, person);
                 }
                 
-                return Ok("{ \"Success\" : true }"); ;
+                return Ok("{ 'Success' : true }"); ;
                 // maybe delete later
                 
             }catch(Exception e)
