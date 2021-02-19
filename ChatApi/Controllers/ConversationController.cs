@@ -47,9 +47,16 @@ namespace ChatApi.Controllers
         {
             try
             {
-                List<Person> p = ConversationManager.getInstance().GetPeopleWaiting();
+                if (ConversationManager.getInstance().IsAdmin(Request.Headers["zbc_auth_uuid"]))
+                {
+                    List<Person> p = ConversationManager.getInstance().GetPeopleWaiting();
 
-                return Ok(p);
+                    return Ok(p);
+                }
+                else
+                {
+                    return Ok("{ 'Success' : false, 'Message': 'You are not an admin' }");
+                }
             }
             catch (Exception e )
             {
